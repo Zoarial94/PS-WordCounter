@@ -27,12 +27,12 @@ public class Main {
         lineStream.map(String::trim)
                     .filter(l -> !l.isEmpty())
                     .forEach((line) -> {
-                        // Remove special characters
-                        line = line.replaceAll("[:;,.?!”“\"_()\\[\\]#*‘-]+", " ")
-                        // Remove specific case. Keeps words like night's or o'clock
-                        .replaceAll(" ‘|‘ |^ +", "")
+                        // Remove special characters. There is a specific case where we need to keep ’
+                        // Words like night' or o'clock
+                        line = line.replaceAll("[:;,.?!”“\"/_()\\[\\]#*$%&‘-]+’?| [’']|[’'] ", " ")
                         // Remove duplicate spaces (Ensures there are no empty words)
                         .replaceAll(" {2,}", " ")
+                        .trim() // There may be a space at the beginning. This removes that and prevents an empty word.
                         .toLowerCase();
 
                         // If the line is now empty, don't do anything
@@ -48,7 +48,14 @@ public class Main {
                         }
                     });
 
-        wordSet.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getValue)).forEach(System.out::println);
+        // Sort by number, then by word.
+        wordSet.entrySet().stream().sorted((e1, e2)->{
+            int cmp = e1.getValue().compareTo(e2.getValue());
+            if(cmp == 0) {
+                return e1.getKey().compareTo(e2.getKey());
+            }
+            return cmp;
+        }).forEach(System.out::println);
 
 
     }
